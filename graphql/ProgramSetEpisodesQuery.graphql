@@ -1,29 +1,33 @@
 query ProgramSetEpisodesQuery($id: ID!) {
-  result: programSet(id: $id) {
-    items(
-      orderBy: PUBLISH_DATE_DESC
-      filter: { isPublished: { equalTo: true } }
-    ) {
-      nodes {
-        id
-        title
+    result: programSet(id: $id) {
+        items(
+            orderBy: PUBLISH_DATE_DESC
+            filter: { isPublished: { equalTo: true } }
+        ) {
+            nodes {
+                id
+                title
 
-        image {
-          url
-          url1X1
-        }
+                image {
+                    url
+                    url1X1
+                }
 
-        programSet {
-          id
-          path
-          title
-        }
+                programSet {
+                    id
+                    path
+                    title
+                    image {
+                        url
+                        url1X1
+                    }
+                }
 
-        audios {
-          url
-          downloadUrl
+                audios {
+                    url
+                    downloadUrl
+                }
+            }
         }
-      }
     }
-  }
 }

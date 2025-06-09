@@ -1,23 +1,29 @@
 query EpisodesQuery($id: ID!) {
-  result: editorialCollection(id: $id) {
-    items {
-      nodes {
-        id
-        title
+    result: editorialCollection(id: $id) {
+        items {
+            nodes {
+                id
+                title
 
-        image {
-          url
-        }
+                image {
+                    url
+                    url1X1
+                }
 
-        programSet {
-          id
-          path
+                programSet {
+                    id
+                    path
+                    title
+                    image {
+                        url
+                        url1X1
+                    }
+                }
+                audios {
+                    url
+                    downloadUrl
+                }
+            }
         }
-        audios {
-          url
-          downloadUrl
-        }
-      }
     }
-  }
 }

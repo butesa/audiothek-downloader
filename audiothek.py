@@ -26,11 +26,16 @@ def rename(title: str, program_id: str, kind: str) -> str:
 
 
 def download_episodes(show_id: int, directory: str):
-    # change query if url is a collection
-    if 'sammlung' in args.url.lower():
-        graphql_file = 'editorialCollection'
-    else:
-        graphql_file = 'ProgramSetEpisodesQuery'
+    url_type = args.url.lower().split('/')[3]
+    match url_type:
+        case 'sammlung':
+            graphql_file = 'editorialCollection'
+        case 'sendung':
+            graphql_file = 'ProgramSetEpisodesQuery'
+        case 'episode':
+            graphql_file = 'episodesQuery'
+        case _:
+            exit(f'Error: URL type "{url_type}" is not supported')
 
     with open(os.path.join(GRAPHQL_DIR, f'{graphql_file}.graphql')) as f:
         query = f.read()
@@ -41,7 +46,10 @@ def download_episodes(show_id: int, directory: str):
     })
     response_json: dict = response.json()
 
-    nodes: list = response_json.get('data').get('result').get('items').get('nodes')
+    if url_type == 'episode':
+        nodes: list = [response_json.get('data').get('result')]
+    else:
+        nodes: list = response_json.get('data').get('result').get('items').get('nodes')
 
     for i, node in enumerate(nodes):
         show_id: str = node.get('programSet').get('id')
@@ -49,16 +57,15 @@ def download_episodes(show_id: int, directory: str):
 
         filename: str = rename(item_title, show_id, 'fileTemplate')
         show_title: str = rename(node.get('programSet').get('title'), show_id, 'showTemplate')
-
-        mp3_url: str = node.get('audios')[0].get('downloadUrl') or node.get('audios')[0].get('url')
-
         show_path: str = os.path.join(directory, rename(show_title, show_id, 'showTemplate'))
 
         if args.square_images:
             image_attr = 'url1X1'
         else:
             image_attr = 'url'
-        image_url: str = node.get('image').get(image_attr).replace('{width}', '500')
+        
+        title_image_url: str = node.get('image').get(image_attr).replace('{width}', '500')
+        mp3_url: str = node.get('audios')[0].get('downloadUrl') or node.get('audios')[0].get('url')
 
         if args.group_episodes:
             episode_name = rename(item_title, show_id, 'episodeDirectoryTemplate')
@@ -76,7 +83,7 @@ def download_episodes(show_id: int, directory: str):
             mp3_file_path: str = os.path.join(show_path, f'{filename}.mp3')
 
             if not os.path.exists(image_file_path):
-                response_image = requests.get(image_url)
+                response_image = requests.get(title_image_url)
                 with open(image_file_path, 'wb') as f:
                     f.write(response_image.content)
 

@@ -1,0 +1,25 @@
+query GetItem($id: ID!) {
+    result: item(id: $id) {
+        id
+        title
+
+        programSet {
+            id
+            path
+            title
+            image {
+                url
+                url1X1
+            }
+        }
+
+        image {
+            url
+            url1X1
+        }
+        audios {
+            url
+            downloadUrl
+        }
+    }
+}
