@@ -10,11 +10,13 @@ query ProgramSetEpisodesQuery($id: ID!) {
 
         image {
           url
+          url1X1
         }
 
         programSet {
           id
           path
+          title
         }
 
         audios {

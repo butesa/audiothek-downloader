@@ -6,12 +6,13 @@ import sys
 from pathlib import Path
 
 import requests
+from pathvalidate import sanitize_filename
 
 API_URL = 'https://api.ardaudiothek.de/graphql'
 GRAPHQL_DIR = os.path.join(Path(__file__).parent, 'graphql')
 
 
-def download_episodes(ard_id: int, directory: str):
+def download_episodes(show_id: int, directory: str):
     # change query if url is a collection
     if 'sammlung' in args.url.lower():
         graphql_file = 'editorialCollection'
@@ -23,47 +24,43 @@ def download_episodes(ard_id: int, directory: str):
 
     response = requests.get(API_URL, params={
         'query': query,
-        'variables': json.dumps({'id': ard_id})
+        'variables': json.dumps({'id': show_id})
     })
-    response_json = response.json()
+    response_json: dict = response.json()
 
-    nodes = response_json.get('data').get('result').get('items').get('nodes')
+    nodes: list = response_json.get('data').get('result').get('items').get('nodes')
 
     for i, node in enumerate(nodes):
-        number = node['id']
+        title: str = node.get('title')
+        filename: str = sanitize_filename(title.replace('/', '-'))
 
-        node_id = node.get('id')
-        title = node.get('title')
-
-        # get title from infos
-        array_filename = re.findall(r'(\w+)', title)
-        if len(array_filename) > 0:
-            filename = '_'.join(array_filename)
+        if args.square_images:
+            image_attr = 'url1X1'
         else:
-            filename = node_id
+            image_attr = 'url'
+        image_url: str = node.get('image').get(image_attr).replace('{width}', '500')
+        mp3_url: str = node.get('audios')[0].get('downloadUrl') or node.get('audios')[0].get('url')
 
-        filename = f'{filename}_{number}'
+        program_set_id: str = node.get('programSet').get('id')
+        program_set_title: str = node.get('programSet').get('title')
+        program_path: str = os.path.join(directory, f'{program_set_title} ({program_set_id})')
 
-        # get image information
-        image_url = node.get('image').get('url')
-        image_url = image_url.replace('{width}', '500')
-        mp3_url = node.get('audios')[0].get('downloadUrl') or node.get('audios')[0].get('url')
-        programset_id = node.get('programSet').get('id')
+        episode_title_regex = re.match(r'^(.+?)\s?\(\d+/\d+\)$', title)
+        if episode_title_regex and args.group_episodes:
+            episode_title: str = episode_title_regex.group(1)
+            episode_title_safe: str = sanitize_filename(episode_title.replace('/', '-')).strip()
 
-        program_path: str = os.path.join(directory, programset_id)
+            program_path: str = os.path.join(program_path, episode_title_safe)
 
         # get information of program
-        if programset_id:
-            try:
-                os.makedirs(program_path)
-            except FileExistsError:
-                pass
-            except Exception as e:
-                print('[Error] Couldn\'t create output directory!', file=sys.stderr)
-                print(e, file=sys.stderr)
-                return
+        if program_set_id:
+            if not os.path.exists(program_path):
+                try:
+                    os.makedirs(program_path)
+                except Exception as e:
+                    print(f'[Error] Couldn\'t create output directory: {e}', file=sys.stderr)
+                    continue
 
-            # write image
             image_file_path = os.path.join(program_path, f'{filename}.jpg')
 
             if not os.path.exists(image_file_path):
@@ -71,18 +68,19 @@ def download_episodes(ard_id: int, directory: str):
                 with open(image_file_path, 'wb') as f:
                     f.write(response_image.content)
 
-            # write mp3
-            mp3_file_path = os.path.join(program_path, f'{filename}.mp3')
+            mp3_file_path: str = os.path.join(program_path, f'{filename}.mp3')
 
             print(f'Download: {i + 1} of {len(nodes)} -> {mp3_file_path}')
 
-            if not os.path.exists(mp3_file_path):
+            if os.path.exists(mp3_file_path):
+                print('skipping (file exists)')
+            else:
                 response_mp3 = requests.get(mp3_url)
 
                 with open(mp3_file_path, 'wb') as f:
                     f.write(response_mp3.content)
         else:
-            print('No programset_id found!', file=sys.stderr)
+            print('No program_set_id found!', file=sys.stderr)
 
 
 if __name__ == '__main__':
@@ -96,7 +94,10 @@ if __name__ == '__main__':
     parser.add_argument(
         '--directory', '-f', type=str, default='output', help='directory to save all mp3s'
     )
-
+    parser.add_argument('--square-images', '-s', action='store_true', default=False,
+                        help='Download images in aspect ratio 1x1 instead of widescreen')
+    parser.add_argument('--group-episodes', '-g', action='store_true', default=False,
+                        help='Group episodes in own sub-directories')
     args = parser.parse_args()
 
     url_parser = re.search(r'/(\d+)/?$', args.url)
