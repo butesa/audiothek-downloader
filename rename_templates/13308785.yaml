@@ -1,0 +1,11 @@
+showName: Grimms Märchen & Verbrechen
+
+showTemplate:
+
+episodeDirectoryTemplate:
+  regex: '(?:Grimms .*)?Der (\d+). Fall: \W?\s?([\w\-, ?!]+)\s?\W? \((\d+)\/(\d+)\)\s?$'
+  substitution: 'Der \1. Fall - \2'
+
+fileTemplate:
+  regex: '(?:Grimms .*)?Der (\d+). Fall: \W?\s?([\w\-, ?!]+)\s?\W? \((\d+)\/(\d+)\)\s?$'
+  substitution: 'Der \1. Fall - \2 (\3-\4)'
