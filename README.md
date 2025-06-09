@@ -1,30 +1,30 @@
 This script can download mp3s and covers from ARD audiothek.
+This project is a [Fork](https://github.com/Leetcore/audiothek-downloader).
 
 # Installation
-``` bash
-pip3 install -r setup.txt
-```
-
-# Usage
-``` bash
-python3 audiothek.py --url 'https://www.ardaudiothek.de/sendung/j-r-r-tolkien-der-herr-der-ringe-fantasy-hoerspiel-klassiker/12197351/'
-```
-
-Can only download the first 999999 episodes! ;)
-
-# Folder
-`./output/id/index_episodename.mp3`
-
-# Source URL
-`https://api.ardaudiothek.de/graphql?query=query ProgramSetEpisodesQuery($id:ID!,$offset:Int!,$count:Int!){result:programSet(id:$id){items(offset:$offset first:$count orderBy:PUBLISH_DATE_DESC filter:{isPublished:{equalTo:true}}){pageInfo{hasNextPage endCursor}nodes{id title publishDate summary duration path image{url url1X1 description attribution}programSet{id title path publicationService{title genre path organizationName}}audios{url downloadUrl allowDownload}}}}}&variables={"id":"72633432","offset":0,"count":999999}`
-
-# Installation problems?
-Try this solution: https://github.com/Leetcore/audiothek-downloader/issues/4
-
 ```bash
-git clone "https://github.com/Leetcore/audiothek-downloader.git"
+git clone "https://github.com/Schluggi/audiothek-downloader.git"
 cd audiothek-downloader
 python3 -m venv venv
 source venv/bin/activate
-pip3 install -r setup.txt
+pip3 install -r requierements.in
 ```
+
+# Usage
+
+``` bash
+python3 audiothek.py \
+--url 'https://www.ardaudiothek.de/sendung/grimms-maerchen-und-verbrechen/13308785/' \
+--directory ./output \
+--group-episodes \ 
+--square-images
+```
+
+## Arguments
+
+| Argument           | Short | Type   | Default  | Required | Description                                                         |
+|--------------------|-------|--------|----------|----------|---------------------------------------------------------------------|
+| `--url`            | `-u`  | `str`  | -        | Yes      | Insert Audiothek URL (e.g. https://www.ardaudiothek.de/sendung/...) |
+| `--directory`      | `-f`  | `str`  | `output` | No       | Directory to save all MP3s                                          |
+| `--square-images`  | `-s`  | `bool` | `False`  | No       | Download images in 1:1 aspect ratio instead of widescreen           |
+| `--group-episodes` | `-g`  | `bool` | `False`  | No       | Group episodes into their own subdirectories                        |
