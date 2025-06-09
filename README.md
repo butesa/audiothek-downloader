@@ -7,7 +7,7 @@ git clone "https://github.com/Schluggi/audiothek-downloader.git"
 cd audiothek-downloader
 python3 -m venv venv
 source venv/bin/activate
-pip3 install -r requierements.in
+pip3 install -r requirements.in
 ```
 
 # Usage
