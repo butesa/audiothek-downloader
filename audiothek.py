@@ -1,9 +1,11 @@
 import argparse
+import json
 import os
 import re
-import requests
 import sys
-import json
+
+import requests
+
 
 def main(url: str, folder: str):
     match = re.search(r"/(\d+)/?$", url)
