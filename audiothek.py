@@ -26,7 +26,7 @@ def rename(title: str, program_id: str, kind: str) -> str:
 
 
 def download_episodes(show_id: int, directory: str):
-    url_type = args.url.lower().split('/')[3]
+    url_type: str = args.url.lower().split('/')[3]
     match url_type:
         case 'sammlung':
             graphql_file = 'editorialCollection'
