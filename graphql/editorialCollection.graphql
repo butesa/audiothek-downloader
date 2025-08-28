@@ -1,5 +1,5 @@
-query EpisodesQuery($id: ID!) {
-    result: editorialCollection(id: $id) {
+query EpisodesQuery($coreId: String!) {
+    result: editorialCollectionByCoreId(coreId: $coreId) {
         items {
             nodes {
                 id

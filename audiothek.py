@@ -25,14 +25,15 @@ def rename(title: str, program_id: str, kind: str) -> str:
     return title.strip()
 
 
-def download_episodes(show_id: int, directory: str):
-    url_type: str = args.url.lower().split('/')[3]
+def download_episodes(core_id: str, directory: str):
+    url_type: str = args.url.lower().split(':')[3]
+
     match url_type:
-        case 'sammlung':
-            graphql_file = 'editorialCollection'
-        case 'sendung':
+        # case 'page':
+        #     graphql_file = 'editorialCollection'
+        case 'show':
             graphql_file = 'ProgramSetEpisodesQuery'
-        case 'episode':
+        case 'publication':
             graphql_file = 'episodesQuery'
         case _:
             exit(f'Error: URL type "{url_type}" is not supported')
@@ -42,11 +43,11 @@ def download_episodes(show_id: int, directory: str):
 
     response = requests.get(API_URL, params={
         'query': query,
-        'variables': json.dumps({'id': show_id})
+        'variables': json.dumps({'coreId': core_id})
     })
     response_json: dict = response.json()
 
-    if url_type == 'episode':
+    if url_type == 'publication':
         nodes: list = [response_json.get('data').get('result')]
     else:
         nodes: list = response_json.get('data').get('result').get('items').get('nodes')
@@ -117,8 +118,8 @@ if __name__ == '__main__':
                         help='Group episodes in own sub-directories')
     args = parser.parse_args()
 
-    url_parser = re.search(r'/(\d+)/?$', args.url)
+    url_parser = re.search(r'(urn:ard:\w+:\w+)', args.url)
     if url_parser:
-        download_episodes(int(url_parser.group(1)), os.path.realpath(args.directory))
+        download_episodes(url_parser.group(1), os.path.realpath(args.directory))
     else:
         exit('No ID found in URL')

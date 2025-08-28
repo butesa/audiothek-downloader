@@ -1,5 +1,5 @@
-query ProgramSetEpisodesQuery($id: ID!) {
-    result: programSet(id: $id) {
+query ProgramSetEpisodesQuery($coreId: String!) {
+    result: programSetByCoreId(coreId: $coreId) {
         items(
             orderBy: PUBLISH_DATE_DESC
             filter: { isPublished: { equalTo: true } }

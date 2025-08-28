@@ -2,6 +2,7 @@ This script can download mp3s and covers from ARD audiothek.
 This project is a [Fork](https://github.com/Leetcore/audiothek-downloader).
 
 # Installation
+
 ```bash
 git clone "https://github.com/Schluggi/audiothek-downloader.git"
 cd audiothek-downloader
@@ -14,11 +15,20 @@ pip3 install -r requirements.in
 
 ``` bash
 python3 audiothek.py \
---url 'https://www.ardaudiothek.de/sendung/grimms-maerchen-und-verbrechen/13308785/' \
+--url 'https://www.ardaudiothek.de/sendung/grimms-maerchen-und-verbrechen/urn:ard:show:b739e5e19ba7f23c/' \
 --directory ./output \
 --group-episodes \ 
 --square-images
 ```
+
+## Supported URL-Types
+
+Here is the information refactored into a Markdown table:
+
+| URL-Type                | Description                                 | Example URL                                                                                         |
+|-------------------------|---------------------------------------------|-----------------------------------------------------------------------------------------------------|
+| `show` (Sendung)        | A single show, e.g. a podcast or radio show | `https://www.ardaudiothek.de/sendung/grimms-maerchen-und-verbrechen/urn:ard:show:b739e5e19ba7f23c/` |
+| `publication` (Episode) | A single episode of a show                  | `https://www.ardaudiothek.de/episode/urn:ard:publication:87d9866e81da85d0/`                         |
 
 ## Arguments
 

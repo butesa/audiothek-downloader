@@ -1,6 +1,7 @@
-query GetItem($id: ID!) {
-    result: item(id: $id) {
+query GetItem($coreId: String!) {
+    result: itemByCoreId(coreId: $coreId) {
         id
+        coreId
         title
 
         programSet {
