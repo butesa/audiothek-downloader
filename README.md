@@ -21,6 +21,10 @@ python3 audiothek.py \
 --square-images
 ```
 
+## Screenshots
+
+![tree-view.png](screenshots/tree-view.png)
+
 ## Supported URL-Types
 
 Here is the information refactored into a Markdown table:
